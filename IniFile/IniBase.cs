@@ -56,19 +56,18 @@ namespace NJCrawford
 
         protected List<FileSection> _sections = new List<FileSection>();
 
+        //<summary>
+        /*
+         * Returns the path of the *calling* assembly, usually the application executable.
+         */
+        //</summary>
         public static string appPath()
         {
             return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().Location);
         }
 
-        /** Returns the value associated with name if it exists,
-         * returns a null string if it doesn't. */
-        public string getValue(string name)
-        {
-            return getValue("", name);
-        }
-
-        public string getValue(string sectionName, string valueName)
+        // Helper function for public get functions
+        protected string _getValue(string sectionName, string valueName)
         {
             string retval = null;
             for (int y = 0; y < _sections.Count; y++)
@@ -88,14 +87,70 @@ namespace NJCrawford
             return retval;
         }
 
+        //<summary>
+        /** Returns the value associated with name if it exists,
+         * returns defaultValue if it doesn't. */
+        //</summary>
+        public string getValue(string name, string defaultValue)
+        {
+            return getValue("", name, defaultValue);
+        }
+
+        //<summary>
+        /** Returns the value associated with name if it exists,
+         * returns defaultValue if it doesn't. */
+        //</summary>
+        public string getValue(string sectionName, string valueName, string defaultValue)
+        {
+            string retval = _getValue(sectionName, valueName);
+
+            if(retval == null)
+            {
+                retval = defaultValue;
+            }
+
+            return retval;
+        }
+
+        //<summary>
+        /** Returns the integer value associated with name if it exists,
+         * returns defaultValue if it doesn't. */
+        //</summary>
+        public Int32 getValueInt(string valueName, Int32 defaultValue)
+        {
+            return getValueInt("", valueName, defaultValue);
+        }
+
+        //<summary>
+        /** Returns the integer value associated with name if it exists,
+         * returns defaultValue if it doesn't. */
+        //</summary>
+        public Int32 getValueInt(string sectionName, string valueName, Int32 defaultValue)
+        {
+            Int32 retval;
+            string temp = _getValue(sectionName, valueName);
+            if(Int32.TryParse(temp, out retval))
+            {
+                return retval;
+            }
+            else
+            {
+                return defaultValue;
+            }
+        }
+
+        //<summary>
         /* Returns the number of sections. */
+        //</summary>
         public int getSectionCount()
         {
             return _sections.Count;
         }
 
+        //<summary>
         /** Returns the name of _sections[index] if it exists,
          * returns a null string if it doesn't. */
+        //</summary>
         public string getSectionName(int sectionIndex)
         {
             string retval = null;
@@ -106,10 +161,12 @@ namespace NJCrawford
             return retval;
         }
 
+        //<summary>
         /* 
          * Gets the number of values in sectionIndex.
          * Returns -1 if sectionIndex is out of range.
          */
+        //</summary>
         public int getValueCount(int sectionIndex)
         {
             int retval = -1;
@@ -120,8 +177,10 @@ namespace NJCrawford
             return retval;
         }
 
+        //<summary>
         /** Returns the value of _values[index] if it exists,
          * returns a null string if it doesn't. */
+        //</summary>
         public string getValue(int sectionIndex, int valueIndex)
         {
             string retval = null;
@@ -132,8 +191,10 @@ namespace NJCrawford
             return retval;
         }
 
+        //<summary>
         /** Returns the name of _values[index] if it exists,
          * returns a null string if it doesn't. */
+        //<summary>
         public string getName(int sectionIndex, int valueIndex)
         {
             string retval = null;
@@ -144,8 +205,10 @@ namespace NJCrawford
             return retval;
         }
 
+        //<summary>
         /** Sets the value of 'name' to 'value'. If name doesn't exist,
          * it will be added. Sections are added as needed. */
+        //</summary>
         protected void _setValue(string sectionName, string valueName, string value)
         {
             bool foundValue = false;
@@ -188,6 +251,15 @@ namespace NJCrawford
                 _sections.Add(tmpSection);
                 _sections[_sections.Count - 1].values.Add(tmpValue);
             }
+        }
+
+        //<summary>
+        /** Sets the value of 'name' to 'value'. If name doesn't exist,
+         * it will be added. Sections are added as needed. */
+        //</summary>
+        protected void _setValueInt(string sectionName, string valueName, Int32 value)
+        {
+            _setValue(sectionName, valueName, value.ToString());
         }
 
         //<summary>

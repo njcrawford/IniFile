@@ -80,6 +80,21 @@ namespace NJCrawford
             setValue("", valueName, value);
         }
 
+        /** Sets the value of 'name' to 'value'. If name doesn't exist,
+        * it will be added. Sections are added as needed. */
+        public void setValueInt(string sectionName, string valueName, Int32 value)
+        {
+            anyValuesChanged = true;
+            _setValueInt(sectionName, valueName, value);
+        }
+
+        /** Sets the value of 'name' to 'value'. If name doesn't exist,
+         * it will be added. Uses default (no name) section. */
+        public void setValueInt(string valueName, Int32 value)
+        {
+            setValueInt("", valueName, value);
+        }
+
         /** Writes all sections and name-value pairs to the file.
          * Creates the file if it doesn't exist. */
         public void save()

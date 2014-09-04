@@ -44,47 +44,36 @@ namespace nc_settings
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            string test;
-            //nc_Settings settings = new nc_Settings(System.IO.Path.Combine(Application.StartupPath, "testsettings.ini"));
-            try
+            Int32 test;
+            test = settings.getValueInt("location", "top", -1);
+            if (test != -1)
             {
-                test = settings.getValue("location", "top");
-                //MessageBox.Show(test);
-                if (test != null)
-                {
-                    this.Top = Convert.ToInt32(test);
-                }
-                test = settings.getValue("location", "left");
-                //MessageBox.Show(test);
-                if (test != null)
-                {
-                    this.Left = Convert.ToInt32(test);
-                }
-                test = settings.getValue("location", "width");
-                //MessageBox.Show(test);
-                if (test != null)
-                {
-                    this.Width = Convert.ToInt32(test);
-                }
-                test = settings.getValue("location", "height");
-                //MessageBox.Show(test);
-                if (test != null)
-                {
-                    this.Height = Convert.ToInt32(test);
-                }
+                this.Top = test;
             }
-            catch (Exception ex)
+
+            test = settings.getValueInt("location", "left", -1);
+            if (test != -1)
             {
-                MessageBox.Show(ex.ToString());
+                this.Left = test;
             }
+
+            test = settings.getValueInt("location", "width", -1);
+            if (test != -1)
+            {
+                this.Width = test;
+            }
+
+            test = settings.getValueInt("location", "height", -1);
+            if (test != -1)
+            {
+                this.Height = test;
+            }
+
             lblVersion.Text = Application.ProductVersion;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //nc_Settings settings = new nc_Settings(System.IO.Path.Combine(Application.StartupPath, "testsettings.ini"));
-            //try
-            //{
             settings.setValue("location", "top", this.Top.ToString());
             settings.setValue("location", "left", this.Left.ToString());
             settings.setValue("location", "width", this.Width.ToString());
@@ -92,17 +81,12 @@ namespace nc_settings
             settings.setValue("this is cool", "Yes");
             settings.setValue("other junk", "way cool", "maybe");
             settings.save();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show(ex.ToString());
-            //}
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string test = settings.getValue("this is cool");
-            if (test != null)
+            string test = settings.getValue("this is cool", "bad string");
+            if (test != "bad string")
             {
                 MessageBox.Show(test);
             }
@@ -125,7 +109,7 @@ namespace nc_settings
                 }
                 else
                 {
-                    // add spacer for sections after the first
+                    // Add a line break for sections after the first, for visual separation
                     message.WriteLine();
                 }
                 message.WriteLine("Section: " + sectionName);
@@ -136,7 +120,6 @@ namespace nc_settings
                 }
             }
             MessageBox.Show(message.ToString());
-            //MessageBox.Show("function disabled");
         }
 
         private void button4_Click(object sender, EventArgs e)
