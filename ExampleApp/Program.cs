@@ -1,7 +1,7 @@
 /*
 IniFile - Parser for .ini files
 
-Copyright (C) 2011 Nathan Crawford
+Copyright (C) 2014 Nathan Crawford
  
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
