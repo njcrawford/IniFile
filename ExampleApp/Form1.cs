@@ -45,25 +45,25 @@ namespace nc_settings
         private void Form1_Load(object sender, EventArgs e)
         {
             Int32 test;
-            test = settings.getValueInt("location", "top", -1);
+            test = settings.getValue<Int32>("location", "top", -1);
             if (test != -1)
             {
                 this.Top = test;
             }
 
-            test = settings.getValueInt("location", "left", -1);
+            test = settings.getValue<Int32>("location", "left", -1);
             if (test != -1)
             {
                 this.Left = test;
             }
 
-            test = settings.getValueInt("location", "width", -1);
+            test = settings.getValue<Int32>("location", "width", -1);
             if (test != -1)
             {
                 this.Width = test;
             }
 
-            test = settings.getValueInt("location", "height", -1);
+            test = settings.getValue<Int32>("location", "height", -1);
             if (test != -1)
             {
                 this.Height = test;
@@ -74,10 +74,10 @@ namespace nc_settings
 
         private void button1_Click(object sender, EventArgs e)
         {
-            settings.setValue("location", "top", this.Top.ToString());
-            settings.setValue("location", "left", this.Left.ToString());
-            settings.setValue("location", "width", this.Width.ToString());
-            settings.setValue("location", "height", this.Height.ToString());
+            settings.setValue("location", "top", this.Top);
+            settings.setValue("location", "left", this.Left);
+            settings.setValue("location", "width", this.Width);
+            settings.setValue("location", "height", this.Height);
             settings.setValue("this is cool", "Yes");
             settings.setValue("other junk", "way cool", "maybe");
             settings.save();
@@ -116,7 +116,7 @@ namespace nc_settings
                 int valueCount = settings.getValueCount(i);
                 for (int x = 0; x < valueCount; x++)
                 {
-                    message.WriteLine("Name: " + settings.getName(i, x) + ", Value: " + settings.getValue(i, x));
+                    message.WriteLine("Name: " + settings.getNameOrNull(i, x) + ", Value: " + settings.getValueOrNull(i, x));
                 }
             }
             MessageBox.Show(message.ToString());

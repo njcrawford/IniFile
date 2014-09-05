@@ -72,41 +72,22 @@ namespace NJCrawford
         }
 
         /// <summary>
-        /// Sets the value of 'valueName' to 'value'. If valueName doesn't exist,
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
         /// it will be added. Sections are added as needed.
         /// </summary>
-        public void setValue(string sectionName, string valueName, string value)
+        public void setValue<T>(string sectionName, string valueName, T value)
         {
             anyValuesChanged = true;
-            _setValue(sectionName, valueName, value);
+            setValueString(sectionName, valueName, value.ToString());
         }
 
         /// <summary>
         /// Sets the value of 'name' to 'value'. If name doesn't exist,
         /// it will be added. Uses default (no name) section.
         /// </summary>
-        public void setValue(string valueName, string value)
+        public void setValue<T>(string valueName, T value)
         {
             setValue("", valueName, value);
-        }
-
-        /// <summary>
-        /// Sets the value of 'name' to 'value'. If name doesn't exist,
-        /// it will be added. Sections are added as needed.
-        /// </summary>
-        public void setValueInt(string sectionName, string valueName, Int32 value)
-        {
-            anyValuesChanged = true;
-            _setValueInt(sectionName, valueName, value);
-        }
-
-        /// <summary>
-        /// Sets the value of 'name' to 'value'. If name doesn't exist,
-        /// it will be added. Uses default (no name) section.
-        /// </summary>
-        public void setValueInt(string valueName, Int32 value)
-        {
-            setValueInt("", valueName, value);
         }
 
         /// <summary>
@@ -189,7 +170,7 @@ namespace NJCrawford
                                 buffer = buffer.Remove(key.Length + 1);
                             }
                             //tack on the new value
-                            buffer = buffer + _getValue(section, key);
+                            buffer = buffer + getValueOrNull(section, key);
                             keysWritten.Add(key);
                         }
                         else
