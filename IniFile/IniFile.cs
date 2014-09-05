@@ -189,7 +189,7 @@ namespace NJCrawford
                                 buffer = buffer.Remove(key.Length + 1);
                             }
                             //tack on the new value
-                            buffer = buffer + getValue(section, key);
+                            buffer = buffer + _getValue(section, key);
                             keysWritten.Add(key);
                         }
                         else

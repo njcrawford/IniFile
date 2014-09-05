@@ -289,7 +289,7 @@ namespace NJCrawford
                 {
                     string tmpName = inLine.Remove(inLine.IndexOf("="));
                     string tmpValue = inLine.Substring(inLine.IndexOf("=") + 1);
-                    if (getValue(section, tmpName) == null)
+                    if (_getValue(section, tmpName) == null)
                     {
                         _setValue(section, tmpName, tmpValue);
                     }
