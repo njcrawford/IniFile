@@ -35,19 +35,25 @@ namespace NJCrawford
         private string _filename = "";
         private bool anyValuesChanged = false;
 
-        // for applications that don't really care what the file is called
+        /// <summary>
+        /// Creates an IniFile with the same name as the calling assembly.
+        /// </summary>
         public IniFile()
         {
             doInit(Assembly.GetCallingAssembly().GetName().Name + ".ini");
         }
 
-        /** If filename does not contain any slashes or backslashes, appPath()
-         * is automatically prepended.*/
+        /// <summary>
+        /// Creates an IniFile with the specified file name.
+        /// If file name does not contain any slashes or backslashes, appPath()
+        /// is automatically prepended.
+        /// </summary>
         public IniFile(string filename)
         {
             doInit(filename);
         }
 
+        // Constructor helper function
         private void doInit(string filename)
         {
             _filename = filename;
@@ -65,38 +71,48 @@ namespace NJCrawford
             }
         }
 
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-        * it will be added. Sections are added as needed. */
+        /// <summary>
+        /// Sets the value of 'valueName' to 'value'. If valueName doesn't exist,
+        /// it will be added. Sections are added as needed.
+        /// </summary>
         public void setValue(string sectionName, string valueName, string value)
         {
             anyValuesChanged = true;
             _setValue(sectionName, valueName, value);
         }
 
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-         * it will be added. Uses default (no name) section. */
+        /// <summary>
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
+        /// it will be added. Uses default (no name) section.
+        /// </summary>
         public void setValue(string valueName, string value)
         {
             setValue("", valueName, value);
         }
 
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-        * it will be added. Sections are added as needed. */
+        /// <summary>
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
+        /// it will be added. Sections are added as needed.
+        /// </summary>
         public void setValueInt(string sectionName, string valueName, Int32 value)
         {
             anyValuesChanged = true;
             _setValueInt(sectionName, valueName, value);
         }
 
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-         * it will be added. Uses default (no name) section. */
+        /// <summary>
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
+        /// it will be added. Uses default (no name) section.
+        /// </summary>
         public void setValueInt(string valueName, Int32 value)
         {
             setValueInt("", valueName, value);
         }
 
-        /** Writes all sections and name-value pairs to the file.
-         * Creates the file if it doesn't exist. */
+        /// <summary>
+        /// Writes all sections and name-value pairs to the file.
+        /// Creates the file if it doesn't exist.
+        /// </summary>
         public void save()
         {
             if (anyValuesChanged)

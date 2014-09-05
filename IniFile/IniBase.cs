@@ -56,11 +56,9 @@ namespace NJCrawford
 
         protected List<FileSection> _sections = new List<FileSection>();
 
-        //<summary>
-        /*
-         * Returns the path of the *calling* assembly, usually the application executable.
-         */
-        //</summary>
+        /// <summary>
+        /// Returns the path of the *calling* assembly, usually the application executable.
+        /// </summary>
         public static string appPath()
         {
             return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetCallingAssembly().Location);
@@ -87,19 +85,19 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /** Returns the value associated with name if it exists,
-         * returns defaultValue if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the value associated with name if it exists,
+        /// returns defaultValue if it doesn't.
+        /// </summary>
         public string getValue(string name, string defaultValue)
         {
             return getValue("", name, defaultValue);
         }
 
-        //<summary>
-        /** Returns the value associated with name if it exists,
-         * returns defaultValue if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the value associated with name if it exists,
+        /// returns defaultValue if it doesn't.
+        /// </summary>
         public string getValue(string sectionName, string valueName, string defaultValue)
         {
             string retval = _getValue(sectionName, valueName);
@@ -112,19 +110,19 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /** Returns the integer value associated with name if it exists,
-         * returns defaultValue if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the integer value associated with name if it exists,
+        /// returns defaultValue if it doesn't.
+        /// </summary>
         public Int32 getValueInt(string valueName, Int32 defaultValue)
         {
             return getValueInt("", valueName, defaultValue);
         }
 
-        //<summary>
-        /** Returns the integer value associated with name if it exists,
-         * returns defaultValue if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the integer value associated with name if it exists,
+        /// returns defaultValue if it doesn't.
+        /// </summary>
         public Int32 getValueInt(string sectionName, string valueName, Int32 defaultValue)
         {
             Int32 retval;
@@ -139,18 +137,18 @@ namespace NJCrawford
             }
         }
 
-        //<summary>
-        /* Returns the number of sections. */
-        //</summary>
+        /// <summary>
+        /// Returns the number of sections.
+        /// </summary>
         public int getSectionCount()
         {
             return _sections.Count;
         }
 
-        //<summary>
-        /** Returns the name of _sections[index] if it exists,
-         * returns a null string if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the name of _sections[index] if it exists,
+        /// returns a null string if it doesn't.
+        /// </summary>
         public string getSectionName(int sectionIndex)
         {
             string retval = null;
@@ -161,12 +159,10 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /* 
-         * Gets the number of values in sectionIndex.
-         * Returns -1 if sectionIndex is out of range.
-         */
-        //</summary>
+        /// <summary>
+        /// Gets the number of values in sectionIndex.
+        /// Returns -1 if sectionIndex is out of range.
+        /// </summary>
         public int getValueCount(int sectionIndex)
         {
             int retval = -1;
@@ -177,10 +173,10 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /** Returns the value of _values[index] if it exists,
-         * returns a null string if it doesn't. */
-        //</summary>
+        /// <summary>
+        /// Returns the value of _values[index] if it exists,
+        /// returns a null string if it doesn't.
+        /// </summary>
         public string getValue(int sectionIndex, int valueIndex)
         {
             string retval = null;
@@ -191,10 +187,10 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /** Returns the name of _values[index] if it exists,
-         * returns a null string if it doesn't. */
-        //<summary>
+        /// <summary>
+        /// Returns the name of _values[index] if it exists,
+        /// returns a null string if it doesn't.
+        /// <summary>
         public string getName(int sectionIndex, int valueIndex)
         {
             string retval = null;
@@ -205,10 +201,10 @@ namespace NJCrawford
             return retval;
         }
 
-        //<summary>
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-         * it will be added. Sections are added as needed. */
-        //</summary>
+        /// <summary>
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
+        /// it will be added. Sections are added as needed.
+        /// </summary>
         protected void _setValue(string sectionName, string valueName, string value)
         {
             bool foundValue = false;
@@ -253,26 +249,26 @@ namespace NJCrawford
             }
         }
 
-        //<summary>
-        /** Sets the value of 'name' to 'value'. If name doesn't exist,
-         * it will be added. Sections are added as needed. */
-        //</summary>
+        /// <summary>
+        /// Sets the value of 'name' to 'value'. If name doesn't exist,
+        /// it will be added. Sections are added as needed.
+        /// </summary>
         protected void _setValueInt(string sectionName, string valueName, Int32 value)
         {
             _setValue(sectionName, valueName, value.ToString());
         }
 
-        //<summary>
-        /** Reads name-value pairs from a stream. Uses setValue()
-         * to add name-value pairs to _sections[n].values. If
-         * the value already exists it will *NOT* be overwritten,
-         * if not it will be added. (changed in v. 1.1.0.8)
-         * This is so the first value in the stream has priority.
-         * Any line without an equals sign or beginning with
-         * # or ; will be discarded. Exception: lines that start 
-         * with a '[' and have a ']' later will be read as section 
-         * headers. Whitespace before and after will be eaten.*/
-        //</summary>
+        /// <summary>
+        /// Reads name-value pairs from a stream. Uses setValue()
+        /// to add name-value pairs to _sections[n].values. If
+        /// the value already exists it will *NOT* be overwritten,
+        /// if not it will be added. (changed in v. 1.1.0.8)
+        /// This is so the first value in the stream has priority.
+        /// Any line without an equals sign or beginning with
+        /// # or ; will be discarded. Exception: lines that start 
+        /// with a '[' and have a ']' later will be read as section 
+        /// headers. Whitespace before and after will be eaten.
+        /// </summary>
         protected void readValuesFromStream(TextReader s)
         {
 
