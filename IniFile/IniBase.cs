@@ -56,6 +56,7 @@ namespace NJCrawford
         }
 
         protected List<FileSection> _sections = new List<FileSection>();
+        protected bool anyValuesChanged = false;
 
         /// <summary>
         /// Returns the path of the *calling* assembly, usually the application executable.
@@ -85,6 +86,20 @@ namespace NJCrawford
                         }
                     }
                 }
+            }
+            return retval;
+        }
+
+        /// <summary>
+        /// Returns the value of _values[index] if it exists,
+        /// returns a null string if it doesn't.
+        /// </summary>
+        public string getValueOrNull(int sectionIndex, int valueIndex)
+        {
+            string retval = null;
+            if (sectionIndex < _sections.Count && valueIndex < _sections[sectionIndex].values.Count)
+            {
+                retval = _sections[sectionIndex].values[valueIndex].value;
             }
             return retval;
         }
@@ -157,20 +172,6 @@ namespace NJCrawford
         }
 
         /// <summary>
-        /// Returns the value of _values[index] if it exists,
-        /// returns a null string if it doesn't.
-        /// </summary>
-        public string getValueOrNull(int sectionIndex, int valueIndex)
-        {
-            string retval = null;
-            if (sectionIndex < _sections.Count && valueIndex < _sections[sectionIndex].values.Count)
-            {
-                retval = _sections[sectionIndex].values[valueIndex].value;
-            }
-            return retval;
-        }
-
-        /// <summary>
         /// Returns the name of _values[index] if it exists,
         /// returns a null string if it doesn't.
         /// <summary>
@@ -202,6 +203,12 @@ namespace NJCrawford
                     {
                         if (_sections[y].values[x].name.Equals(valueName))
                         {
+                            if (value != _sections[y].values[x].value)
+                            {
+                                // Value has changed
+                                anyValuesChanged = true;
+                            }
+
                             StringPair tmp = new StringPair();
                             tmp.name = valueName;
                             tmp.value = value;
@@ -212,6 +219,9 @@ namespace NJCrawford
                     }
                     if (!foundValue)
                     {
+                        // Adding a new value, so count it as changed
+                        anyValuesChanged = true;
+
                         StringPair tmp = new StringPair();
                         tmp.name = valueName;
                         tmp.value = value;
@@ -222,6 +232,9 @@ namespace NJCrawford
             }
             if (!foundSection)
             {
+                // Adding a new section, so count it as changed
+                anyValuesChanged = true;
+
                 FileSection tmpSection = new FileSection();
                 StringPair tmpValue = new StringPair();
                 tmpSection.name = sectionName;
@@ -270,6 +283,9 @@ namespace NJCrawford
                 }
                 inLine = s.ReadLine();
             }
+
+            // File has just been opened - reset the changed flag
+            anyValuesChanged = false;
         }
     }
 }

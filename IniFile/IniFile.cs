@@ -27,13 +27,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace NJCrawford
 {
     public class IniFile : IniBase
     {
         private string _filename = "";
-        private bool anyValuesChanged = false;
 
         /// <summary>
         /// Creates an IniFile with the same name as the calling assembly.
@@ -62,12 +62,13 @@ namespace NJCrawford
                 _filename = System.IO.Path.Combine(appPath(), _filename);
             }
 
-            System.IO.StreamReader inFile;
             if (System.IO.File.Exists(_filename))
             {
-                inFile = System.IO.File.OpenText(_filename);
-                readValuesFromStream(inFile);
-                inFile.Close();
+                // inFile will be automatically closed at the end of the using block
+                using (System.IO.StreamReader inFile = System.IO.File.OpenText(_filename))
+                {
+                    readValuesFromStream(inFile);
+                }
             }
         }
 
@@ -77,7 +78,6 @@ namespace NJCrawford
         /// </summary>
         public void setValue<T>(string sectionName, string valueName, T value)
         {
-            anyValuesChanged = true;
             setValueString(sectionName, valueName, value.ToString());
         }
 
@@ -98,148 +98,153 @@ namespace NJCrawford
         {
             if (anyValuesChanged)
             {
-                System.IO.StreamReader inFile = null;
-                System.IO.StreamWriter outFile;
+                StreamReader inFile = null;
+                // Open the existing file, if present
                 if (System.IO.File.Exists(_filename))
                 {
                     inFile = new System.IO.StreamReader(_filename);
                 }
                 string tempfile = System.IO.Path.GetDirectoryName(_filename);
-                tempfile = System.IO.Path.Combine(tempfile, System.IO.Path.GetFileNameWithoutExtension(_filename) + ".tmp" + System.IO.Path.GetExtension(_filename));
-                outFile = System.IO.File.CreateText(tempfile);
-                string buffer = null;
-                string section = "";
-                List<string> keysWritten = new List<string>();
-                List<string> sectionsWritten = new List<string>();
+                tempfile = System.IO.Path.Combine(tempfile, System.IO.Path.GetFileNameWithoutExtension(_filename) + "." + Process.GetCurrentProcess().Id + System.IO.Path.GetExtension(_filename));
+                // Outfile will be automatically closed by end of using block
+                using (StreamWriter outFile = System.IO.File.CreateText(tempfile))
+                {
+                    string buffer = null;
+                    string section = "";
+                    List<string> keysWritten = new List<string>();
+                    List<string> sectionsWritten = new List<string>();
 
-                if (inFile != null)
-                {
-                    buffer = inFile.ReadLine();
-                }
-                while (buffer != null)
-                {
-                    if (buffer.TrimStart().StartsWith("[") && buffer.Contains("]"))
+                    if (inFile != null)
                     {
-                        int start = buffer.IndexOf('[') + 1;
-                        int length = buffer.IndexOf(']') - start;
-                        // Found the start of another section, make sure we wrote all values from this section.
-                        // We have to treat end of file same as start of new section, see below
-                        // first, we find the section we're looking for
-                        for (int i = 0; i < _sections.Count; i++)
+                        buffer = inFile.ReadLine();
+                    }
+                    while (buffer != null)
+                    {
+                        if (buffer.TrimStart().StartsWith("[") && buffer.Contains("]"))
                         {
-                            if (_sections[i].name == section)
+                            int start = buffer.IndexOf('[') + 1;
+                            int length = buffer.IndexOf(']') - start;
+                            // Found the start of another section, make sure we wrote all values from this section.
+                            // We have to treat end of file same as start of new section, see below
+                            // first, we find the section we're looking for
+                            for (int i = 0; i < _sections.Count; i++)
                             {
-                                // Then we check all it's values to see if each one has been written
-                                for (int x = 0; x < _sections[i].values.Count; x++)
+                                if (_sections[i].name == section)
                                 {
-                                    if (!keysWritten.Contains(_sections[i].values[x].name))
+                                    // Then we check all it's values to see if each one has been written
+                                    for (int x = 0; x < _sections[i].values.Count; x++)
                                     {
-                                        //then write it, and mark it as written
-                                        outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
-                                        keysWritten.Add(_sections[i].values[x].name);
+                                        if (!keysWritten.Contains(_sections[i].values[x].name))
+                                        {
+                                            //then write it, and mark it as written
+                                            outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
+                                            keysWritten.Add(_sections[i].values[x].name);
+                                        }
                                     }
+                                    break;
                                 }
-                                break;
+                            }
+                            sectionsWritten.Add(section);
+                            section = buffer.Substring(start, length); ;
+                            keysWritten = new List<string>();
+
+                            //string newSection = buffer.Substring(start, length);
+                            //if (!sectionsWritten.Contains(newSection))
+                            //{
+                            //    section = newSection;
+                            //    valuesWritten = new List<string>();
+                            //}
+                            //else
+                            //{
+                            //    //skip to the next section
+                            //    //may need different code later
+
+                            //}
+                        }
+                        else if (!buffer.TrimStart().StartsWith("#") && !buffer.TrimStart().StartsWith(";") && buffer.Contains("="))
+                        {
+                            string key = buffer.Remove(buffer.IndexOf("="));
+                            if (!keysWritten.Contains(key))
+                            {
+                                if (buffer.Length > key.Length + 1)//if it's less than or equal to, the current value is an empty string and can't be dropped
+                                {
+                                    //drop the current value
+                                    buffer = buffer.Remove(key.Length + 1);
+                                }
+                                //tack on the new value
+                                buffer = buffer + getValueOrNull(section, key);
+                                keysWritten.Add(key);
+                            }
+                            else
+                            {
+                                //just skip doubled lines
+                                //buffer = "#" + buffer;//comment doubled lines, this lets user see what line is really being used
                             }
                         }
-                        sectionsWritten.Add(section);
-                        section = buffer.Substring(start, length); ;
-                        keysWritten = new List<string>();
 
-                        //string newSection = buffer.Substring(start, length);
-                        //if (!sectionsWritten.Contains(newSection))
-                        //{
-                        //    section = newSection;
-                        //    valuesWritten = new List<string>();
-                        //}
-                        //else
-                        //{
-                        //    //skip to the next section
-                        //    //may need different code later
+                        outFile.WriteLine(buffer);
 
-                        //}
+                        buffer = inFile.ReadLine();
                     }
-                    else if (!buffer.TrimStart().StartsWith("#") && !buffer.TrimStart().StartsWith(";") && buffer.Contains("="))
+
+                    //we have to treat end of file same as start of new section, see above
+                    //first, we find the section we're looking for
+                    for (int i = 0; i < _sections.Count; i++)
                     {
-                        string key = buffer.Remove(buffer.IndexOf("="));
-                        if (!keysWritten.Contains(key))
+                        if (_sections[i].name == section)
                         {
-                            if (buffer.Length > key.Length + 1)//if it's less than or equal to, the current value is an empty string and can't be dropped
+                            //then we check all it's values to see if each one has been written
+                            for (int x = 0; x < _sections[i].values.Count; x++)
                             {
-                                //drop the current value
-                                buffer = buffer.Remove(key.Length + 1);
+                                if (!keysWritten.Contains(_sections[i].values[x].name))
+                                {
+                                    //then write it, and mark it as written
+                                    outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
+                                    keysWritten.Add(_sections[i].values[x].name);
+                                }
                             }
-                            //tack on the new value
-                            buffer = buffer + getValueOrNull(section, key);
-                            keysWritten.Add(key);
-                        }
-                        else
-                        {
-                            //just skip doubled lines
-                            //buffer = "#" + buffer;//comment doubled lines, this lets user see what line is really being used
+                            break;
                         }
                     }
+                    sectionsWritten.Add(section);
 
-                    outFile.WriteLine(buffer);
-
-                    buffer = inFile.ReadLine();
-                }
-
-                //we have to treat end of file same as start of new section, see above
-                //first, we find the section we're looking for
-                for (int i = 0; i < _sections.Count; i++)
-                {
-                    if (_sections[i].name == section)
+                    //write any new sections at the end of the file
+                    for (int i = 0; i < _sections.Count; i++)
                     {
-                        //then we check all it's values to see if each one has been written
-                        for (int x = 0; x < _sections[i].values.Count; x++)
+                        if (!sectionsWritten.Contains(_sections[i].name))
                         {
-                            if (!keysWritten.Contains(_sections[i].values[x].name))
+                            if (_sections[i].name != "")
                             {
-                                //then write it, and mark it as written
+                                outFile.WriteLine("[" + _sections[i].name + "]");
+                            }
+                            sectionsWritten.Add(_sections[i].name);
+                            for (int x = 0; x < _sections[i].values.Count; x++)
+                            {
                                 outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
-                                keysWritten.Add(_sections[i].values[x].name);
                             }
                         }
-                        break;
                     }
-                }
-                sectionsWritten.Add(section);
 
-                //write any new sections at the end of the file
-                for (int i = 0; i < _sections.Count; i++)
-                {
-                    if (!sectionsWritten.Contains(_sections[i].name))
+                    //for (int y = 0; y < _sections.Count; y++)
+                    //{
+                    //    if (y != 0)
+                    //    {
+                    //        outFile.WriteLine();
+                    //        outFile.WriteLine("[" + _sections[y].name + "]");
+                    //    }
+                    //    for (int x = 0; x < _sections[y].values.Count; x++)
+                    //    {
+                    //        outFile.WriteLine(_sections[y].values[x].name + "=" + _sections[y].values[x].value);
+                    //    }
+                    //}
+
+                    // Close the existing file, if needed
+                    if (inFile != null)
                     {
-                        if (_sections[i].name != "")
-                        {
-                            outFile.WriteLine("[" + _sections[i].name + "]");
-                        }
-                        sectionsWritten.Add(_sections[i].name);
-                        for (int x = 0; x < _sections[i].values.Count; x++)
-                        {
-                            outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
-                        }
+                        inFile.Close();
                     }
                 }
-
-                //for (int y = 0; y < _sections.Count; y++)
-                //{
-                //    if (y != 0)
-                //    {
-                //        outFile.WriteLine();
-                //        outFile.WriteLine("[" + _sections[y].name + "]");
-                //    }
-                //    for (int x = 0; x < _sections[y].values.Count; x++)
-                //    {
-                //        outFile.WriteLine(_sections[y].values[x].name + "=" + _sections[y].values[x].value);
-                //    }
-                //}
-                if (inFile != null)
-                {
-                    inFile.Close();
-                }
-                outFile.Close();
+                // Copy the temp file to the old location and delete the temp file
                 System.IO.File.Copy(tempfile, _filename, true);
                 System.IO.File.Delete(tempfile);
             }
