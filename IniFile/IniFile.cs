@@ -98,25 +98,25 @@ namespace NJCrawford
         {
             if (anyValuesChanged)
             {
-                StreamReader inFile = null;
+                StreamReader origFile = null;
                 // Open the existing file, if present
-                if (System.IO.File.Exists(_filename))
+                if (File.Exists(_filename))
                 {
-                    inFile = new System.IO.StreamReader(_filename);
+                    origFile = new StreamReader(_filename);
                 }
-                string tempfile = System.IO.Path.GetDirectoryName(_filename);
-                tempfile = System.IO.Path.Combine(tempfile, System.IO.Path.GetFileNameWithoutExtension(_filename) + "." + Process.GetCurrentProcess().Id + System.IO.Path.GetExtension(_filename));
+                string tempFilePath = Path.GetDirectoryName(_filename);
+                tempFilePath = Path.Combine(tempFilePath, Path.GetFileNameWithoutExtension(_filename) + "." + Process.GetCurrentProcess().Id + Path.GetExtension(_filename));
                 // Outfile will be automatically closed by end of using block
-                using (StreamWriter outFile = System.IO.File.CreateText(tempfile))
+                using (StreamWriter tempFile = File.CreateText(tempFilePath))
                 {
                     string buffer = null;
                     string section = "";
                     List<string> keysWritten = new List<string>();
                     List<string> sectionsWritten = new List<string>();
 
-                    if (inFile != null)
+                    if (origFile != null)
                     {
-                        buffer = inFile.ReadLine();
+                        buffer = origFile.ReadLine();
                     }
                     while (buffer != null)
                     {
@@ -137,7 +137,7 @@ namespace NJCrawford
                                         if (!keysWritten.Contains(_sections[i].values[x].name))
                                         {
                                             //then write it, and mark it as written
-                                            outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
+                                            tempFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
                                             keysWritten.Add(_sections[i].values[x].name);
                                         }
                                     }
@@ -182,9 +182,9 @@ namespace NJCrawford
                             }
                         }
 
-                        outFile.WriteLine(buffer);
+                        tempFile.WriteLine(buffer);
 
-                        buffer = inFile.ReadLine();
+                        buffer = origFile.ReadLine();
                     }
 
                     //we have to treat end of file same as start of new section, see above
@@ -199,7 +199,7 @@ namespace NJCrawford
                                 if (!keysWritten.Contains(_sections[i].values[x].name))
                                 {
                                     //then write it, and mark it as written
-                                    outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
+                                    tempFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
                                     keysWritten.Add(_sections[i].values[x].name);
                                 }
                             }
@@ -215,12 +215,12 @@ namespace NJCrawford
                         {
                             if (_sections[i].name != "")
                             {
-                                outFile.WriteLine("[" + _sections[i].name + "]");
+                                tempFile.WriteLine("[" + _sections[i].name + "]");
                             }
                             sectionsWritten.Add(_sections[i].name);
                             for (int x = 0; x < _sections[i].values.Count; x++)
                             {
-                                outFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
+                                tempFile.WriteLine(_sections[i].values[x].name + "=" + _sections[i].values[x].value);
                             }
                         }
                     }
@@ -239,14 +239,14 @@ namespace NJCrawford
                     //}
 
                     // Close the existing file, if needed
-                    if (inFile != null)
+                    if (origFile != null)
                     {
-                        inFile.Close();
+                        origFile.Close();
                     }
                 }
                 // Copy the temp file to the old location and delete the temp file
-                System.IO.File.Copy(tempfile, _filename, true);
-                System.IO.File.Delete(tempfile);
+                File.Copy(tempFilePath, _filename, true);
+                File.Delete(tempFilePath);
             }
         }
     }
