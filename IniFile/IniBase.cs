@@ -207,13 +207,13 @@ namespace NJCrawford
                             {
                                 // Value has changed
                                 anyValuesChanged = true;
-                            }
 
-                            StringPair tmp = new StringPair();
-                            tmp.name = valueName;
-                            tmp.value = value;
-                            foundValue = true;
-                            _sections[y].values[x] = tmp;
+                                StringPair tmp = new StringPair();
+                                tmp.name = valueName;
+                                tmp.value = value;
+                                foundValue = true;
+                                _sections[y].values[x] = tmp;
+                            }
                             break;
                         }
                     }
